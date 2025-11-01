@@ -2110,10 +2110,32 @@ def remove_invalid_items_from_save():
     except KeyError:
         messagebox.showerror("Error", "Invalid Level.sav structure!")
         return
-
     valid_ids = get_valid_item_ids()
     removed = 0
-
+    def count_items(data):
+        total = 0
+        if isinstance(data, dict):
+            if data.get("prop_name") == "Slots" and "value" in data and isinstance(data["value"], dict):
+                for slot in data["value"].get("values", []):
+                    raw = slot.get("RawData", {})
+                    val = raw.get("value", {})
+                    if isinstance(val, dict):
+                        item = val.get("item")
+                        if isinstance(item, dict) and val.get("count", 0) > 0:
+                            total += 1
+            elif "RawData" in data and isinstance(data["RawData"], dict):
+                val = data["RawData"].get("value", {})
+                if isinstance(val, dict):
+                    item = val.get("item")
+                    if isinstance(item, dict) and val.get("count", 0) > 0:
+                        total += 1
+            for v in data.values():
+                total += count_items(v)
+        elif isinstance(data, list):
+            for item in data:
+                total += count_items(item)
+        return total
+    total_before = count_items(wsd)
     def deep_clean(data):
         nonlocal removed
         if isinstance(data, dict):
@@ -2123,26 +2145,30 @@ def remove_invalid_items_from_save():
                     val = raw.get("value", {})
                     if isinstance(val, dict):
                         item = val.get("item")
-                        static_id = item.get("static_id") if isinstance(item, dict) else None
-                        if static_id and static_id not in valid_ids:
-                            val["count"] = 0
-                            removed += 1
+                        if isinstance(item, dict) and val.get("count", 0) > 0:
+                            static_id = item.get("static_id")
+                            if static_id and static_id not in valid_ids:
+                                val["count"] = 0
+                                removed += 1
             elif "RawData" in data and isinstance(data["RawData"], dict):
                 val = data["RawData"].get("value", {})
                 if isinstance(val, dict):
                     item = val.get("item")
-                    static_id = item.get("static_id") if isinstance(item, dict) else None
-                    if static_id and static_id not in valid_ids:
-                        val["count"] = 0
-                        removed += 1
+                    if isinstance(item, dict) and val.get("count", 0) > 0:
+                        static_id = item.get("static_id")
+                        if static_id and static_id not in valid_ids:
+                            val["count"] = 0
+                            removed += 1
             for v in data.values():
                 deep_clean(v)
         elif isinstance(data, list):
             for item in data:
                 deep_clean(item)
-
     deep_clean(wsd)
-    msg = f"Invalid items purged from save! Total removed: {removed}"
+    total_after = count_items(wsd)
+    msg = (f"Total items before cleaning: {total_before}\n"
+           f"Invalid items removed: {removed}\n"
+           f"Total items after cleaning: {total_after}")
     print(msg)
     messagebox.showinfo("AutoItemCleaner", msg)
     refresh_all()
