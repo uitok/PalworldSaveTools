@@ -2098,7 +2098,16 @@ def unlock_all_private_chests():
     print(msg)
     messagebox.showinfo("Unlocked", msg)
     refresh_all()
-from config_items import get_valid_item_ids
+def get_valid_items_map_from_json():
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(script_dir, "itemdata.json")
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return {item["asset"].lower(): item["name"] for item in data.get("items", [])}
+    except Exception as e:
+        print(f"[AutoItemCleaner] Failed to load itemdata.json: {e}")
+        return {}
 def remove_invalid_items_from_save():
     folder_path = current_save_path
     if not folder_path:
@@ -2110,7 +2119,7 @@ def remove_invalid_items_from_save():
     except KeyError:
         messagebox.showerror("Error", "Invalid Level.sav structure!")
         return
-    valid_ids = set(x.lower() for x in get_valid_item_ids())
+    valid_items = get_valid_items_map_from_json()
     removed = 0
     def count_items(data):
         total = 0
@@ -2147,7 +2156,7 @@ def remove_invalid_items_from_save():
                         item = val.get("item")
                         if isinstance(item, dict) and val.get("count", 0) > 0:
                             static_id = item.get("static_id")
-                            if static_id and static_id.lower() not in valid_ids:
+                            if static_id and static_id.lower() not in valid_items:
                                 val["count"] = 0
                                 removed += 1
                                 print(f"[AutoItemCleaner] Removed invalid item: {static_id}")
@@ -2157,7 +2166,7 @@ def remove_invalid_items_from_save():
                     item = val.get("item")
                     if isinstance(item, dict) and val.get("count", 0) > 0:
                         static_id = item.get("static_id")
-                        if static_id and static_id.lower() not in valid_ids:
+                        if static_id and static_id.lower() not in valid_items:
                             val["count"] = 0
                             removed += 1
                             print(f"[AutoItemCleaner] Removed invalid item: {static_id}")
