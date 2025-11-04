@@ -1,4 +1,9 @@
 from import_libs import *
+try:
+    from i18n import t
+except Exception:
+    def t(key, **fmt):
+        return key.format(**fmt) if fmt else key
 def backup_whole_directory(source_folder, backup_folder):
     import datetime as dt
     def get_timestamp():
@@ -29,7 +34,7 @@ def json_to_sav(json_data, output_filepath):
 class SlotNumUpdaterApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Slot Injector")
+        self.title(t("tool.slot_injector"))
         self.geometry("600x200")
         self.config(bg="#2f2f2f")
         try:
@@ -53,38 +58,38 @@ class SlotNumUpdaterApp(tk.Tk):
         frame = ttk.Frame(self, style="TFrame")
         frame.pack(padx=20, pady=10, fill='x', expand=True)
         row = 0
-        browse_btn = ttk.Button(frame, text="Browse", command=self.browse_file, style="Dark.TButton")
+        browse_btn = ttk.Button(frame, text=t("Browse"), command=self.browse_file, style="Dark.TButton")
         browse_btn.grid(row=row, column=0, sticky='w')
-        ttk.Label(frame, text="Select Level.sav File:", style="TLabel").grid(row=row, column=1, sticky='w', padx=(10,5))
+        ttk.Label(frame, text=t("Select Level.sav File:"), style="TLabel").grid(row=row, column=1, sticky='w', padx=(10,5))
         self.file_entry = ttk.Entry(frame, style="TEntry")
         self.file_entry.grid(row=row, column=2, sticky='ew')
         row += 1
-        ttk.Label(frame, text="Total Pages:", style="TLabel").grid(row=row, column=0, sticky='w', pady=5)
+        ttk.Label(frame, text=t("Total Pages:"), style="TLabel").grid(row=row, column=0, sticky='w', pady=5)
         self.pages_entry = ttk.Entry(frame, style="TEntry", width=10)
         self.pages_entry.grid(row=row, column=1, sticky='w', pady=5)
         row += 1
-        ttk.Label(frame, text="Total Slots:", style="TLabel").grid(row=row, column=0, sticky='w', pady=5)
+        ttk.Label(frame, text=t("Total Slots:"), style="TLabel").grid(row=row, column=0, sticky='w', pady=5)
         self.slots_entry = ttk.Entry(frame, style="TEntry", width=10)
         self.slots_entry.grid(row=row, column=1, sticky='w', pady=5)
         row += 1
-        ttk.Label(frame, text="Total SlotNum:", style="TLabel").grid(row=row, column=0, sticky='w', pady=5)
+        ttk.Label(frame, text=t("Total SlotNum:"), style="TLabel").grid(row=row, column=0, sticky='w', pady=5)
         self.current_val_entry = ttk.Entry(frame, style="TEntry", width=10)
         self.current_val_entry.grid(row=row, column=1, sticky='w', pady=5)
         self.current_val_entry.insert(0, "960")
         row += 1
-        apply_btn = ttk.Button(frame, text="Apply Slot Injection", command=self.apply_slotnum_update, style="Dark.TButton")
+        apply_btn = ttk.Button(frame, text=t("Apply Slot Injection"), command=self.apply_slotnum_update, style="Dark.TButton")
         apply_btn.grid(row=row, column=0, columnspan=3, pady=10)
         frame.columnconfigure(2, weight=1)
         center_window(self)
     def browse_file(self):
-        file = filedialog.askopenfilename(title="Select Level.sav file", filetypes=[("SAV files", "Level.sav")])
+        file = filedialog.askopenfilename(title=t("Select Level.sav file"), filetypes=[("SAV files", "Level.sav")])
         if file:
             self.file_entry.delete(0, tk.END)
             self.file_entry.insert(0, file)
     def apply_slotnum_update(self):
         filepath = self.file_entry.get()
         if not filepath or not os.path.isfile(filepath) or not filepath.endswith("Level.sav"):
-            messagebox.showerror("Error", "Select a valid Level.sav file")
+            messagebox.showerror(t("Error"), t("Select a valid Level.sav file"))
             return
         try:
             pages = int(self.pages_entry.get())
@@ -93,20 +98,20 @@ class SlotNumUpdaterApp(tk.Tk):
             if pages < 1 or slots < 1:
                 raise ValueError
         except ValueError:
-            messagebox.showerror("Error", "Please enter valid positive integers for pages, slots, and current value")
+            messagebox.showerror(t("Error"), t("Please enter valid positive integers for pages, slots, and current value"))
             return
         new_value = pages * slots
-        confirm = messagebox.askyesno("Confirm Update", f"Are you sure you want to update SlotNum values from {current_val} to {new_value} (pages × slots)?")
+        confirm = messagebox.askyesno(t("Confirm Update"), t("Are you sure you want to update SlotNum values from {current_val} to {new_value} (pages × slots)?", current_val=current_val, new_value=new_value))
         if not confirm:
             return
         level_json = sav_to_json(filepath)
         container = level_json['properties']['worldSaveData']['value'].get('CharacterContainerSaveData', {})
         if not container:
-            messagebox.showerror("Error", "CharacterContainerSaveData not found.")
+            messagebox.showerror(t("Error"), t("CharacterContainerSaveData not found."))
             return
         val = container.get('value', [])
         if not isinstance(val, list):
-            messagebox.showerror("Error", "CharacterContainerSaveData.value is not a list.")
+            messagebox.showerror(t("Error"), t("CharacterContainerSaveData.value is not a list."))
             return
         updated_count = 0
         for entry in val:
@@ -115,11 +120,11 @@ class SlotNumUpdaterApp(tk.Tk):
                 slotnum_entry['value'] = new_value
                 updated_count += 1
         if updated_count == 0:
-            messagebox.showinfo("Info", f"No SlotNum entries with value {current_val} found.")
+            messagebox.showinfo(t("Info"), t("No SlotNum entries with value {current_val} found.", current_val=current_val))
             return
         backup_whole_directory(os.path.dirname(filepath), "Backups/Slot Injector")
         json_to_sav(level_json, filepath)
-        messagebox.showinfo("Success", f"Updated {updated_count} SlotNum entries from {current_val} to {new_value} in Level.sav!")
+        messagebox.showinfo(t("Success"), t("Updated {updated_count} SlotNum entries from {current_val} to {new_value} in Level.sav!", updated_count=updated_count, current_val=current_val, new_value=new_value))
 def center_window(win):
     win.update_idletasks()
     w, h = win.winfo_width(), win.winfo_height()

@@ -1,4 +1,9 @@
 from import_libs import *
+try:
+    from i18n import t
+except Exception:
+    def t(key, **fmt):
+        return key.format(**fmt) if fmt else key
 player_list_cache = []
 def backup_whole_directory(source_folder, backup_folder):
     import datetime as dt
@@ -90,9 +95,9 @@ def fix_save(save_path, new_guid, old_guid, guild_fix=True):
         if os.path.exists(meta_path):
             meta_json = sav_to_json(meta_path)
             old_world_name = meta_json['properties']['SaveData']['value'].get('WorldName', {}).get('value', 'Unknown World')
-            rename = messagebox.askyesno("Rename World?", f"Do you want to rename the world? Current name: '{old_world_name}'")
+            rename = messagebox.askyesno(t("Rename World?"), t("Do you want to rename the world? Current name: '{old_world_name}'", old_world_name=old_world_name))
             if rename:
-                new_world_name = ask_string_with_icon("Rename World Name", "Enter new world name:", ICON_PATH)
+                new_world_name = ask_string_with_icon(t("Rename World Name"), t("Enter new world name:"), ICON_PATH)
                 if new_world_name:
                     meta_json['properties']['SaveData']['value']['WorldName']['value'] = new_world_name
             json_to_sav(meta_json, meta_path)
@@ -110,8 +115,8 @@ def fix_save(save_path, new_guid, old_guid, guild_fix=True):
     os.rename(old_sav_path, tmp_path)
     if os.path.exists(new_sav_path): os.rename(new_sav_path, os.path.join(save_path, 'Players', old_guid.upper() + '.sav'))
     os.rename(tmp_path, os.path.join(save_path, 'Players', new_guid.upper() + '.sav'))
-    print(f"Success! Fix has been applied! Have fun!")
-    messagebox.showinfo("Success", "Fix has been applied! Have fun!")
+    print(t("Success! Fix has been applied! Have fun!"))
+    messagebox.showinfo(t("Success"), t("Fix has been applied! Have fun!"))
 def copy_dps_file(src_folder, src_uid, tgt_folder, tgt_uid):
     src_file = os.path.join(src_folder, f"{str(src_uid).replace('-', '').upper()}_dps.sav")
     tgt_file = os.path.join(tgt_folder, f"{str(tgt_uid).replace('-', '').upper()}_dps.sav")
@@ -136,9 +141,9 @@ def ask_string_with_icon(title, prompt, icon_path):
             return self.entry
         def buttonbox(self):
             box = tk.Frame(self, bg="#2f2f2f")
-            btn_ok = tk.Button(box, text="OK", width=10, command=self.ok, bg="#555555", fg="white", font=("Arial",10), relief="flat", activebackground="#666666")
+            btn_ok = tk.Button(box, text=t("OK"), width=10, command=self.ok, bg="#555555", fg="white", font=("Arial",10), relief="flat", activebackground="#666666")
             btn_ok.pack(side="left", padx=5, pady=5)
-            btn_cancel = tk.Button(box, text="Cancel", width=10, command=self.cancel, bg="#555555", fg="white", font=("Arial",10), relief="flat", activebackground="#666666")
+            btn_cancel = tk.Button(box, text=t("Cancel"), width=10, command=self.cancel, bg="#555555", fg="white", font=("Arial",10), relief="flat", activebackground="#666666")
             btn_cancel.pack(side="left", padx=5, pady=5)
             self.bind("<Return>", lambda event: self.ok())
             self.bind("<Escape>", lambda event: self.cancel())
@@ -263,7 +268,7 @@ def sort_treeview_column(treeview, col, reverse):
 def fix_host_save():
     global window, level_sav_entry, old_tree, new_tree, source_result_label, target_result_label, old_search_var, new_search_var
     window = tk.Toplevel()
-    window.title("Fix Host Save - GUID Migrator")
+    window.title(t("Fix Host Save - GUID Migrator"))
     window.geometry("1200x600")
     window.config(bg="#2f2f2f")
     try:
@@ -284,12 +289,12 @@ def fix_host_save():
     style.map("Dark.TButton", background=[("active", "#666666"), ("!disabled", "#555555")], foreground=[("disabled", "#888888"), ("!disabled", "white")])
     file_frame = ttk.Frame(window, style="TFrame")
     file_frame.pack(fill='x', padx=10, pady=10)
-    ttk.Label(file_frame, text='Select Level.sav file:', font=font_style, style="TLabel").pack(side='left')
+    ttk.Label(file_frame, text=t('Select Level.sav file:'), font=font_style, style="TLabel").pack(side='left')
     level_sav_entry = ttk.Entry(file_frame, width=65, font=font_style, style="TEntry")
     level_sav_entry.pack(side='left', padx=5)
-    browse_button = ttk.Button(file_frame, text="Browse", command=choose_level_file, style="Dark.TButton")
+    browse_button = ttk.Button(file_frame, text=t("Browse"), command=choose_level_file, style="Dark.TButton")
     browse_button.pack(side='left')
-    migrate_button = ttk.Button(file_frame, text="Migrate", command=fix_save_wrapper, style="Dark.TButton")
+    migrate_button = ttk.Button(file_frame, text=t("Migrate"), command=fix_save_wrapper, style="Dark.TButton")
     migrate_button.pack(side='right')
     old_frame = ttk.Frame(window, style="TFrame")
     old_frame.pack(side='left', fill='both', expand=True, padx=(10,5), pady=10)
@@ -297,7 +302,7 @@ def fix_host_save():
     search_frame_old.pack(fill='x', pady=5)
     old_search_var = tk.StringVar()
     old_search_entry = ttk.Entry(search_frame_old, textvariable=old_search_var, font=font_style, style="TEntry")
-    ttk.Label(search_frame_old, text="Search Source Player:", font=font_style, style="TLabel").pack(side='left', padx=(0,5))
+    ttk.Label(search_frame_old, text=t("Search Source Player:"), font=font_style, style="TLabel").pack(side='left', padx=(0,5))
     old_search_entry.pack(side='left', fill='x', expand=True)
     old_search_entry.bind('<KeyRelease>', lambda e: filter_treeview(old_tree, old_search_entry.get()))
     old_tree = ttk.Treeview(old_frame, columns=("GUID", "Name", "GuildID"), show='headings', selectmode='browse', style="Treeview")
@@ -317,7 +322,7 @@ def fix_host_save():
     search_frame_new.pack(fill='x', pady=5)
     new_search_var = tk.StringVar()
     new_search_entry = ttk.Entry(search_frame_new, textvariable=new_search_var, font=font_style, style="TEntry")
-    ttk.Label(search_frame_new, text="Search Target Player:", font=font_style, style="TLabel").pack(side='left', padx=(0,5))
+    ttk.Label(search_frame_new, text=t("Search Target Player:"), font=font_style, style="TLabel").pack(side='left', padx=(0,5))
     new_search_entry.pack(side='left', fill='x', expand=True)
     new_search_entry.bind('<KeyRelease>', lambda e: filter_treeview(new_tree, new_search_entry.get()))
     new_tree = ttk.Treeview(new_frame, columns=("GUID", "Name", "GuildID"), show='headings', selectmode='browse', style="Treeview")
@@ -335,24 +340,24 @@ def fix_host_save():
     new_tree.original_rows = []
     old_search_var.trace_add('write', lambda *args: filter_treeview(old_tree, old_search_var.get()))
     new_search_var.trace_add('write', lambda *args: filter_treeview(new_tree, new_search_var.get()))
-    source_result_label = ttk.Label(old_frame, text="Source Player: N/A", font=font_style, style="TLabel")
+    source_result_label = ttk.Label(old_frame, text=t("Source Player: N/A"), font=font_style, style="TLabel")
     source_result_label.pack(fill='x', pady=(5,0))
-    target_result_label = ttk.Label(new_frame, text="Target Player: N/A", font=font_style, style="TLabel")
+    target_result_label = ttk.Label(new_frame, text=t("Target Player: N/A"), font=font_style, style="TLabel")
     target_result_label.pack(fill='x', pady=(5,0))
     def update_source_selection(event):
         selected = old_tree.selection()
         if selected:
             values = old_tree.item(selected[0], 'values')
-            source_result_label.config(text=f"Source Player: {values[1]} ({values[0]})")
+            source_result_label.config(text=t("Source Player: {name} ({guid})", name=values[1], guid=values[0]))
         else:
-            source_result_label.config(text="Source Player: N/A")
+            source_result_label.config(text=t("Source Player: N/A"))
     def update_target_selection(event):
         selected = new_tree.selection()
         if selected:
             values = new_tree.item(selected[0], 'values')
-            target_result_label.config(text=f"Target Player: {values[1]} ({values[0]})")
+            target_result_label.config(text=t("Target Player: {name} ({guid})", name=values[1], guid=values[0]))
         else:
-            target_result_label.config(text="Target Player: N/A")
+            target_result_label.config(text=t("Target Player: N/A"))
     old_tree.bind('<<TreeviewSelect>>', update_source_selection)
     new_tree.bind('<<TreeviewSelect>>', update_target_selection)
     center_window(window)

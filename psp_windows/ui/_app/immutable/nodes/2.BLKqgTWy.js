@@ -1,0 +1,1 @@
+import"../chunks/woX702LQ.js";import{g as o,i as a}from"../chunks/FTlQNedl.js";import{p as e,j as i}from"../chunks/B9aKyTE9.js";import{g as t}from"../chunks/B7z-6CDi.js";function c(s,p){e(p,!1),o().saveFile?t("/edit"):t("/file"),a(),i()}export{c as component};

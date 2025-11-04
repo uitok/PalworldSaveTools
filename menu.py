@@ -22,6 +22,21 @@ def setup_import_paths():
         if os.path.exists(subdir_path) and subdir_path not in sys.path:
             sys.path.insert(0, subdir_path)
 setup_import_paths()
+try:
+    # Ensure Assets/ is on sys.path before importing our i18n package
+    from i18n import init_language, t, set_language, get_language, load_resources
+except Exception:
+    # Fallback stubs if i18n not available
+    def t(key, **fmt):
+        return key.format(**fmt) if fmt else key
+    def init_language(default_lang: str = "zh_CN"):  # noqa: ANN001
+        pass
+    def set_language(lang: str):  # noqa: ANN001
+        pass
+    def get_language():
+        return "zh_CN"
+    def load_resources(lang: str | None = None):  # noqa: ANN001
+        pass
 class LazyImporter:    
     def __init__(self):
         self._modules = {}
@@ -151,21 +166,22 @@ def run_tool(choice):
     except Exception as e:
         print(f"Invalid choice or error running tool: {e}")
         raise
-converting_tools = [
-    "Convert Level.sav file to Level.json",
-    "Convert Level.json file back to Level.sav",
-    "Convert Player files to json format",
-    "Convert Player files back to sav format",
-    "Convert GamePass ←→ Steam",
-    "Convert SteamID"
+# Tool label keys for i18n
+converting_tool_keys = [
+    "tool.convert.level.to_json",
+    "tool.convert.level.to_sav",
+    "tool.convert.players.to_json",
+    "tool.convert.players.to_sav",
+    "tool.convert.gamepass.steam",
+    "tool.convert.steamid",
 ]
-management_tools = [
-    "All in One Deletion Tool",
-    "Slot Injector",
-    "Modify Save",
-    "Character Transfer",
-    "Fix Host Save",
-    "Restore Map"
+management_tool_keys = [
+    "tool.deletion",
+    "tool.slot_injector",
+    "tool.modify_save",
+    "tool.character_transfer",
+    "tool.fix_host_save",
+    "tool.restore_map",
 ]
 class MenuGUI(tk.Tk):
     def __init__(self):
@@ -185,15 +201,47 @@ class MenuGUI(tk.Tk):
         style.configure("Dark.TButton", background="#555555", foreground="white", padding=6)
         style.map("Dark.TButton", background=[("active", "#666666"), ("!disabled", "#555555")], foreground=[("disabled", "#888888"), ("!disabled", "white")])
         tools_version, _ = get_versions()
-        self.title(f"PalworldSaveTools v{tools_version}")
+        self.title(t("app.title", version=tools_version))
         self.configure(bg="#2f2f2f")
         self.geometry("800x530")
         self.resizable(False, True)
+        # Keep references for dynamic language refresh
+        self.info_labels = []  # list[(label_widget, key, fmt_dict)]
+        self.category_frames = []  # list[(frame_widget, key)]
+        self.tool_buttons = []  # list[(button_widget, key)]
+        self.lang_combo = None
         self.setup_ui()
         center_window(self)
     def setup_ui(self):
-        container = ttk.Frame(self, style="TFrame")
-        container.pack(fill="both", expand=True, padx=10, pady=10)
+        # Scrollable container (Canvas + vertical scrollbar)
+        root_frame = ttk.Frame(self, style="TFrame")
+        root_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        canvas = tk.Canvas(root_frame, bg="#2f2f2f", highlightthickness=0)
+        vbar = ttk.Scrollbar(root_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=vbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        vbar.pack(side="right", fill="y")
+        container = ttk.Frame(canvas, style="TFrame")
+        win = canvas.create_window((0, 0), window=container, anchor="nw")
+        def _on_frame_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        def _on_canvas_configure(event):
+            # Make inner frame match canvas width
+            canvas.itemconfigure(win, width=event.width)
+        container.bind("<Configure>", _on_frame_configure)
+        canvas.bind("<Configure>", _on_canvas_configure)
+        def _on_mousewheel(event):
+            delta = -1 * int(event.delta / 120) if event.delta else 0
+            canvas.yview_scroll(delta, "units")
+        # Windows uses <MouseWheel>
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        # Top bar with language selector
+        topbar = ttk.Frame(container, style="TFrame")
+        topbar.pack(fill="x", pady=(0, 6))
+        ttk.Label(topbar, text=t("lang.label")+":", style="TLabel").pack(side="right", padx=(0, 6))
+        self.lang_combo = ttk.Combobox(topbar, state="readonly", values=[])
+        self.lang_combo.pack(side="right")
+        self.lang_combo.bind("<<ComboboxSelected>>", lambda e: self.on_language_change())
         logo_path = os.path.join("Assets", "resources", "PalworldSaveTools.png")
         if os.path.exists(logo_path):
             img = Image.open(logo_path)
@@ -211,18 +259,17 @@ class MenuGUI(tk.Tk):
             for line in logo_text.strip('\n').split('\n'):
                 ttk.Label(container, text=line, font=ascii_font, style="TLabel").pack(anchor="center")
         tools_version, game_version = get_versions()
-        info_lines = [
-            f"v{tools_version} - Working as of v{game_version}",
-            "WARNING: ALWAYS BACKUP YOUR SAVES BEFORE USING THIS TOOL!",
-            f"MAKE SURE TO UPDATE YOUR SAVES ON/AFTER THE v{game_version} PATCH!",
-            "IF YOU DO NOT UPDATE YOUR SAVES, YOU WILL GET ERRORS!"
+        info_items = [
+            ("app.subtitle", {"game_version": game_version}, "#6f9", ("Consolas", 10)),
+            ("notice.backup", {}, "#f44", ("Consolas", 9, "bold")),
+            ("notice.patch", {"game_version": game_version}, "#f44", ("Consolas", 9, "bold")),
+            ("notice.errors", {}, "#f44", ("Consolas", 9, "bold")),
         ]
-        colors = ["#6f9", "#f44", "#f44", "#f44"]
-        fonts = [("Consolas", 10)] + [("Consolas", 9, "bold")] * 3
-        for text, color, font in zip(info_lines, colors, fonts):
-            label = ttk.Label(container, text=text, style="TLabel")
+        for key, fmt, color, font in info_items:
+            label = ttk.Label(container, text=t(key, **fmt), style="TLabel")
             label.configure(foreground=color, font=font)
             label.pack(pady=(0,2))
+            self.info_labels.append((label, key, fmt))
         ttk.Label(container, text="="*85, font=("Consolas", 12), style="TLabel").pack(pady=(5,10))
         tools_frame = ttk.Frame(container, style="TFrame")
         tools_frame.pack(fill="both", expand=True)
@@ -237,10 +284,10 @@ class MenuGUI(tk.Tk):
         right_frame.grid(row=0, column=1, sticky="nsew", padx=(5,0))
         right_frame.columnconfigure(0, weight=1)
         left_categories = [
-            ("Converting Tools", converting_tools, "#2196F3"),
+            ("cat.converting", converting_tool_keys, "#2196F3"),
         ]
         right_categories = [
-            ("Management Tools", management_tools, "#4CAF50")
+            ("cat.management", management_tool_keys, "#4CAF50")
         ]
         for idx, (title, tools, color) in enumerate(left_categories):
             frame = self.create_labeled_frame(left_frame, title, color)
@@ -250,36 +297,79 @@ class MenuGUI(tk.Tk):
             frame = self.create_labeled_frame(right_frame, title, color)
             frame.columnconfigure(0, weight=1)
             self.populate_tools(frame, tools, idx)
-    def create_labeled_frame(self, parent, title, color):
-        style_name = f"{title.replace(' ', '')}.TLabelframe"
+        # Initialize language UI values and texts
+        self.refresh_texts()
+    def create_labeled_frame(self, parent, title_key, color):
+        style_name = f"{title_key.replace('.', '_')}.TLabelframe"
         ttk.Style().configure(style_name, background="#2a2a2a", foreground=color, font=("Consolas", 12, "bold"), labelanchor="n")
         ttk.Style().configure(f"{style_name}.Label", background="#2a2a2a", foreground=color, font=("Consolas", 12, "bold"))
-        frame = ttk.LabelFrame(parent, text=title, style=style_name, labelanchor="n")
+        frame = ttk.LabelFrame(parent, text=t(title_key), style=style_name, labelanchor="n")
         frame.pack(fill="x", pady=5)
+        self.category_frames.append((frame, title_key))
         return frame
-    def populate_tools(self, parent, tools, category_offset):
+    def populate_tools(self, parent, tool_keys, category_offset):
         parent.columnconfigure(0, weight=1)
-        for i, tool in enumerate(tools):
+        for i, tool_key in enumerate(tool_keys):
             idx = (category_offset, i)
-            btn = ttk.Button(parent, text=tool, style="Dark.TButton", command=lambda idx=idx: self.run_tool(idx))
+            btn = ttk.Button(parent, text=t(tool_key), style="Dark.TButton", command=lambda idx=idx: self.run_tool(idx))
             btn.grid(row=i, column=0, sticky="ew", pady=3, padx=5)
-    def run_tool(self, choice):
-        tool_name = ""
+            self.tool_buttons.append((btn, tool_key))
+    def get_tool_name(self, choice):
         try:
             category_index, tool_index = choice
-            if category_index == 0: tool_name = converting_tools[tool_index]
-            elif category_index == 1: tool_name = management_tools[tool_index]
+            if category_index == 0:
+                key = converting_tool_keys[tool_index]
+            elif category_index == 1:
+                key = management_tool_keys[tool_index]
+            else:
+                key = str(choice)
+            return t(key)
         except Exception:
-            tool_name = str(choice)
-        print(f'Now opening "{tool_name}"...')
+            return str(choice)
+
+    def run_tool(self, choice):
+        tool_name = self.get_tool_name(choice)
+        print(t('status.open', name=tool_name))
         self.withdraw()
         try:
             tool_window = run_tool(choice)
             if tool_window: tool_window.wait_window()
         except Exception:
             pass
-        print(f'Now closing "{tool_name}"...')
+        print(t('status.close', name=tool_name))
         self.deiconify()
+
+    def on_language_change(self):
+        # Map displayed text back to language codes
+        sel = self.lang_combo.get()
+        # try find by matching localized labels
+        if sel == t('lang.zh_CN'):
+            lang = 'zh_CN'
+        elif sel == t('lang.en_US'):
+            lang = 'en_US'
+        else:
+            lang = 'zh_CN'
+        set_language(lang)
+        load_resources(lang)
+        self.refresh_texts()
+
+    def refresh_texts(self):
+        tools_version, game_version = get_versions()
+        self.title(t("app.title", version=tools_version))
+        # Update info labels
+        for label, key, fmt in self.info_labels:
+            label.configure(text=t(key, **fmt))
+        # Update category frames
+        for frame, key in self.category_frames:
+            frame.configure(text=t(key))
+        # Update tool buttons
+        for btn, key in self.tool_buttons:
+            btn.configure(text=t(key))
+        # Update language combobox items and selection
+        values = [t('lang.zh_CN'), t('lang.en_US')]
+        self.lang_combo.configure(values=values)
+        cur = get_language()
+        self.lang_combo.set(t('lang.zh_CN') if cur == 'zh_CN' else t('lang.en_US'))
 def center_window(win):
     win.update_idletasks()
     w, h = win.winfo_width(), win.winfo_height()
@@ -290,6 +380,11 @@ def on_exit():
     app.destroy()
     sys.exit(0)
 if __name__ == "__main__":
+    # Initialize language (default zh_CN) before building UI
+    try:
+        init_language("zh_CN")
+    except Exception:
+        pass
     tools_version, game_version = get_versions()
     set_console_title(f"PalworldSaveTools v{tools_version}")
     clear_console() 

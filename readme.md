@@ -1,70 +1,81 @@
+简体中文 | [English](README.en.md)
+
 ![PalworldSaveTools Logo](Assets/resources/PalworldSaveTools.png)
 ---
-- **Contact me on Discord:** Pylar1991
+- **联系 Discord：** Pylar1991
 ---
 ---
-- **Please download the standalone folder from https://github.com/deafdudecomputers/PalworldSaveTools/releases/latest to be able to use the .exe!**
+- **请从 `https://github.com/deafdudecomputers/PalworldSaveTools/releases/latest` 下载独立版文件夹以便使用 .exe！**
 ---
 
-## Features:
+## 功能特点
 
-- **Fast parsing/reading** tool—one of the quickest available.  
-- Lists all players/guilds.  
-- Lists all pals and their details.  
-- Displays last online time for players.  
-- Logs players and their data into `players.log`.  
-- Logs and sorts players by the number of pals owned.  
-- Provides a **base map view**.  
-- Provides automated killnearestbase commands for PalDefender targeting inactive bases.  
-- Transfers saves between dedicated servers and single/coop worlds.  
-- Fix Host Save via GUID editing.  
-- Includes Steam ID conversion.  
-- Includes coordinate conversion.  
-- Includes GamePass ⇔ Steam conversion.  
-- Slot injector to increase slots per player on world/server, compatible with Bigger PalBox mod.  
-- Automated backup between tool usages.
-- All in One Deletion Tool (Delete Guilds, Delete Bases, Delete Players).
+- **快速解析/读取**，速度领先的工具之一  
+- 列出所有玩家/公会  
+- 列出全部帕鲁及其详情  
+- 显示玩家最近上线时间  
+- 将玩家及其数据记录到 `players.log`  
+- 统计并按拥有帕鲁数量排序  
+- 提供**基地地图视图**  
+- 为 PalDefender 提供自动化 killnearestbase 命令，定位不活跃基地  
+- 在独服与单人/联机世界之间转移存档  
+- 通过 GUID 编辑修复主机存档（Fix Host Save）  
+- 提供 Steam ID 转换  
+- 提供坐标转换  
+- 提供 GamePass ⇔ Steam 转换  
+- 槽位注入器：提升每位玩家在世界/服务器的帧箱槽位，兼容 Bigger PalBox 模组  
+- 工具使用间自动备份  
+- 一体化删除工具（删除公会/基地/玩家）
 
 ---
 
-## 🗺️ Steps to Unlock Your Map.
+## ✏️ 修改存档：编辑器选择
 
-> **Note:** This only applies if you **do NOT** want to use the "Restore Map" option.
-> ⚠️ This will overwrite your current map progress with the fully unlocked map from PST.
+- 点击应用内的“修改存档”时，将弹出选择窗口：
+  - Palworld Save Pal（推荐）：功能全面、集成更紧密；若未安装将自动下载并启动。
+  - Palworld Pal Editor：支持 GUI/Web/CLI；若未安装也会自动下载并启动。
+- 提示：修改前请务必备份存档。
 
-### 1️⃣ Copy the Unlocked Map File
-Copy the `LocalData.sav` file from `Assets\resources\LocalData.sav`.
+---
 
-### 2️⃣ Find Your New Server/World ID
-- **Join your new server/world**.
-- Open File Explorer and paste:
+## 🗺️ 解锁地图步骤
+
+> 仅当你不使用“还原地图（Restore Map）”功能时适用。
+> ⚠️ 这会用 PST 自带的全开地图覆盖你当前的地图进度。
+
+### 1️⃣ 复制解锁地图文件
+从 `Assets\resources\LocalData.sav` 复制 `LocalData.sav`。
+
+### 2️⃣ 查找新的服务器/世界 ID
+- 进入你的新服务器/世界
+- 打开资源管理器并粘贴：
 
 ```
 %localappdata%\Pal\Saved\SaveGames\
 ```
 
-- Look for a folder with a **random ID** — this is your **Steam ID**.
-- Open that folder and **sort the subfolders by the "Last Modified" date**.
-- Find the folder that matches your **new server/world ID**.
+- 找到一个名字为长随机 ID 的文件夹（这是你的 Steam ID）
+- 打开该文件夹并按“修改日期”排序子文件夹
+- 找到与你的新服务器/世界 ID 对应的文件夹
 
-### 3️⃣ Replace the Map File
-- Paste the copied `LocalData.sav` into this **new server/world folder**.
-- If prompted, **confirm the overwrite** to replace the existing file.
+### 3️⃣ 替换地图文件
+- 将复制的 `LocalData.sav` 粘贴到上述服务器/世界文件夹
+- 若提示覆盖，确认替换
 
-### 🎉 Done!
-Launch your **new server/world** — your fog and icons will now match the unlocked map from the PST `Assets\resources` file.
+### 🎉 完成
+启动你的新服务器/世界——迷雾与图标将与 PST 资源文件中的全开地图一致。
 
 ---
 
-## 🔁 To Move from Host/Co-op to Server or Vice Versa
+## 🔁 从主机/联机与服务器互转
 
-For **host/co-op**, the save folder is typically located at:
+主机/联机的存档位置通常为：
 
 ```
 %localappdata%\Pal\Saved\SaveGames\YOURID\RANDOMID\
 ```
 
-For **dedicated servers**, the save folder is typically located at:
+独立服务器的存档位置通常为：
 
 ```
 steamapps\common\Palworld\Pal\Saved\SaveGames\0\RANDOMSERVERID\
@@ -72,107 +83,92 @@ steamapps\common\Palworld\Pal\Saved\SaveGames\0\RANDOMSERVERID\
 
 ---
 
-### 🧪 Transfer Process
+### 🧪 转移流程
 
-1. Copy **`Level.sav` and the `Players` folder** from either your **host/co-op** or **dedicated server** save folder.
-2. Paste **`Level.sav` and the `Players` folder** into the other save folder type (host ↔ server).
-3. Start the game or server.
-4. When prompted to create a **new character**, go ahead and do it.
-5. Wait ~2 minutes for the auto-save, then close the game/server.
-6. Copy the newly updated **`Level.sav` and `Players` folder** from that world.
-7. Paste them into a **temporary folder** somewhere on your PC.
-8. Open **PST(PalworldSaveTools)** and choose the **Fix Host Save** option.
-9. Select the **`Level.sav`** from your temporary folder.
-10. Choose:
-    - The **old character** (from original save)
-    - The **new character** (you just created)
-11. Click **Migrate**.
-12. After migration is complete, copy the updated **`Level.sav` and `Players` folder** from the temporary folder.
-13. Paste them back into your actual save folder (host or server).
-14. Start the game/server and enjoy your character with all progress intact! 
-
----
-
-# Host Swap Process in Palworld (UID Explained)
-
-## Background
-- **Host always uses `0001.sav`** — same UID for whoever hosts.
-- Each client uses a unique **regular UID save** (e.g. `123xxx.sav`, `987xxx.sav`).
-
-## Key Prerequisite
-Both players (old host and new host) **must have their regular saves generated**.  
-This happens by joining the host’s world and creating a new character if none exists.
+1. 从你的主机/联机或独服世界复制 **`Level.sav` 与 `Players` 文件夹**
+2. 将这两者粘贴到另一种存档类型的目录（主机 ↔ 服务器）
+3. 启动游戏或服务器
+4. 当提示创建**新角色**时，按提示创建
+5. 等待约 2 分钟自动保存后，关闭游戏/服务器
+6. 从该世界复制新的 **`Level.sav` 与 `Players` 文件夹**
+7. 将其粘贴到你电脑上的**临时文件夹**
+8. 打开 **PST(PalworldSaveTools)** 并选择 **Fix Host Save**
+9. 选择临时文件夹内的 **`Level.sav`**
+10. 选择：
+    - **旧角色**（来自原存档）
+    - **新角色**（你刚创建的）
+11. 点击 **Migrate**
+12. 迁移完成后，从临时文件夹复制更新后的 **`Level.sav` 与 `Players` 文件夹**
+13. 粘贴回你的实际存档位置（主机或服务器）
+14. 启动游戏/服务器，享受你完整进度的角色！
 
 ---
 
-## Step-by-Step Host Swap
+# Palworld 主机切换流程（UID 说明）
 
-### 1. Ensure Regular Saves Exist
-- Player A (old host) should have a regular save (e.g. `123xxx.sav`).
-- Player B (new host) should have a regular save (e.g. `987xxx.sav`).
+## 背景
+- **主机永远使用 `0001.sav`** —— 无论谁当主机，UID 固定
+- 每个客户端使用自己的**常规 UID 存档**（如 `123xxx.sav`、`987xxx.sav`）
 
-### 2. Swap Old Host’s Host Save to Regular Save
-- Use PalworldSaveTools **Fix Host Save** to swap:
-  - Old host’s `0001.sav` → `123xxx.sav`  
-  (This moves old host’s progress from host slot to their regular player slot.)
-
-### 3. Swap New Host’s Regular Save to Host Save
-- Use PalworldSaveTools **Fix Host Save** to swap:
-  - New host’s `987xxx.sav` → `0001.sav`  
-  (This moves new host’s progress into the host slot.)
+## 前置条件
+双方（旧主机与新主机）都需要拥有各自的常规存档。若没有，进入主机世界创建新角色即可生成。
 
 ---
 
-## Result
-- Player B is now the host with their own character and pals in `0001.sav`.
-- Player A becomes a client with their original progress in `123xxx.sav`.
+## 步骤
+
+### 1. 确保双方均有常规存档
+- A（旧主机）拥有常规存档（如 `123xxx.sav`）
+- B（新主机）拥有常规存档（如 `987xxx.sav`）
+
+### 2. 将旧主机的主机存档转为其常规存档
+- 使用 PalworldSaveTools 的 **Fix Host Save**：
+  - 旧主机 `0001.sav` → `123xxx.sav`
+
+### 3. 将新主机的常规存档转为主机存档
+- 使用 **Fix Host Save**：
+  - 新主机 `987xxx.sav` → `0001.sav`
 
 ---
 
-## Summary
-- **Swap old host’s `0001.sav` to their regular UID save.**
-- **Swap new host’s regular UID save to `0001.sav`.**
+## 结果
+- B 成为主机，其角色与帕鲁位于 `0001.sav`
+- A 成为客户端，原进度保存在 `123xxx.sav`
 
 ---
 
-This process lets both players keep their characters and pals intact while swapping host roles.
+## 总结
+- 先把旧主机的 `0001.sav` 转到其常规 UID 存档
+- 再把新主机的常规 UID 存档转到 `0001.sav`
+
+---
+
+该流程可在切换主机时保留双方的角色与帕鲁完整数据。
 
 ---
 
 
-# 🐞 Known Bugs / Issues
+# 🐞 已知问题
 
-## 1. Steam ➝ GamePass Converter Not Working
-**Issue:** Changes made via the converter are not applied or retained.  
-**Steps to Fix:**
-1. Close the GamePass version of Palworld.  
-2. Wait a few minutes.  
-3. Run the Steam ➝ GamePass converter.  
-4. Wait again.  
-5. Launch Palworld on GamePass and confirm the updated save works.  
+## 1. Steam ➝ GamePass 转换器不生效
+**现象：** 转换后的改动未应用或未保留  
+**处理：** 关闭 GamePass 版 Palworld → 等几分钟 → 运行转换 → 再等 → 打开 GamePass 版验证
 
 ---
 
-## 2. `struct.error` When Parsing Save
-**Cause:** The save file format is outdated and incompatible with current tools.  
-**Solution:**  
-- Place the outdated save into **Solo, Coop, or Dedicated Server** mode.  
-- Load the game once to trigger an **automatic structure update**.  
-- Ensure the save was last updated **on or after the latest game patch**.  
+## 2. 解析存档时出现 `struct.error`
+**原因：** 存档结构过旧，与当前工具不兼容  
+**解决：** 将旧存档放入单人/联机或独服中运行一次，触发结构升级；确保在最新补丁或之后更新
 
 ---
 
 ## 3. `PalworldSaveTools.exe - System Error`
-**Error Message:**
-  
+**错误信息：**
+
 ```
 The code execution cannot proceed because VCRUNTIME140.dll was not found.
 Reinstalling the program may fix this problem.
-
 ```
 
-**Cause:** Some PCs (barebones setups, sandboxes, or VMs) do not include this DLL, which the tools require to run. 
- 
-**Solution:**  
-- Install the latest **Microsoft Visual C++ Redistributable**  
-- Download here: [Microsoft Visual C++ 2015–2022 Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-microsoft-visual-c-redistributable-version)  
+**原因：** 某些系统（精简系统、沙箱或虚拟机）缺少必需的运行库  
+**解决：** 安装最新的 **Microsoft Visual C++ 2015–2022 Redistributable**（微软官网可下载）

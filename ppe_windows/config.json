@@ -1,0 +1,9 @@
+{
+    "i18n": "en",
+    "mode": "gui",
+    "port": 58080,
+    "path": null,
+    "password": null,
+    "JWT_SECRET_KEY": "X2Nvbm5sb3N0",
+    "shownDonateInfo": {}
+}

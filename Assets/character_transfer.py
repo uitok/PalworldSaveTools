@@ -1,4 +1,9 @@
 from import_libs import *
+try:
+    from i18n import t
+except Exception:
+    def t(key, **fmt):
+        return key.format(**fmt) if fmt else key
 level_sav_path, host_sav_path, t_level_sav_path, t_host_sav_path = None, None, None, None
 level_json, host_json, targ_lvl, targ_json = None, None, None, None
 target_section_ranges, target_save_type, target_raw_gvas, targ_json_gvas = None, None, None, None
@@ -474,7 +479,7 @@ def transfer_all_characters():
         current_selection_label.config(text="Source: None, Target: None")
         source_player_list.selection_remove(source_player_list.selection())
         target_player_list.selection_remove(target_player_list.selection())
-        messagebox.showinfo("Transfer Successful", "Transfer successful in memory! Hit 'Save Changes' to save.")
+        messagebox.showinfo(t("Transfer Successful"), t("Transfer successful in memory! Hit 'Save Changes' to save."))
     threading.Thread(target=worker, daemon=True).start()
 def main(skip_msgbox=False):
     global host_guid, targ_uid, exported_map, selected_source_player, selected_target_player
@@ -551,7 +556,7 @@ def main(skip_msgbox=False):
     if not skip_msgbox:
         messagebox.showinfo("Transfer Successful", "Transfer successful in memory! Hit 'Save Changes' to save.")
 def save_and_backup():
-    print("Now saving the data...")
+    print(t("Now saving the data..."))
     WORLDSAVESIZEPREFIX = b'\x0e\x00\x00\x00worldSaveData\x00\x0f\x00\x00\x00StructProperty\x00'
     size_idx = target_raw_gvas.find(WORLDSAVESIZEPREFIX) + len(WORLDSAVESIZEPREFIX)
     output_data = MyWriter(custom_properties=PALWORLD_CUSTOM_PROPERTIES).write_sections(targ_lvl, target_section_ranges, target_raw_gvas, size_idx)
@@ -740,7 +745,7 @@ def filter_treeview(tree, query, is_source):
 def finalize_save(window):
     try:
         save_and_backup()
-        messagebox.showinfo("Save Complete", "Changes saved successfully.")
+        messagebox.showinfo(t("Save Complete"), t("Changes saved successfully."))
         window.destroy()
     except Exception as e:
         print(f"Exception in finalize_save: {e}")
@@ -758,7 +763,7 @@ def center_window(win):
 def character_transfer():
     global source_player_list, target_player_list, source_level_path_label, target_level_path_label, current_selection_label, btn_toggle
     window = tk.Toplevel()
-    window.title("Character Transfer")
+    window.title(t("tool.character_transfer"))
     window.minsize(1100, 500)
     window.config(bg="#2f2f2f")
     try:
@@ -781,23 +786,23 @@ def character_transfer():
     window.rowconfigure(1, weight=1)
     source_frame = ttk.Frame(window, style="TFrame")
     source_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
-    ttk.Label(source_frame, text="Search Source Player:", font=font_style, style="TLabel").pack(side="top", anchor="w", padx=(0, 5))
+    ttk.Label(source_frame, text=t("Search Source Player:"), font=font_style, style="TLabel").pack(side="top", anchor="w", padx=(0, 5))
     source_search_var = tk.StringVar()
     source_search_entry = ttk.Entry(source_frame, textvariable=source_search_var, font=font_style, style="TEntry", width=20)
     source_search_entry.pack(side="top", fill="x", expand=True)
     source_search_entry.bind("<KeyRelease>", lambda e: filter_treeview(source_player_list, source_search_entry.get(), is_source=True))
     target_frame = ttk.Frame(window, style="TFrame")
     target_frame.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
-    ttk.Label(target_frame, text="Search Target Player:", font=font_style, style="TLabel").pack(side="top", anchor="w", padx=(0, 5))
+    ttk.Label(target_frame, text=t("Search Target Player:"), font=font_style, style="TLabel").pack(side="top", anchor="w", padx=(0, 5))
     target_search_var = tk.StringVar()
     target_search_entry = ttk.Entry(target_frame, textvariable=target_search_var, font=font_style, style="TEntry", width=20)
     target_search_entry.pack(side="top", fill="x", expand=True)
     target_search_entry.bind("<KeyRelease>", lambda e: filter_treeview(target_player_list, target_search_entry.get(), is_source=False))
-    ttk.Button(window, text='Select Source Level File', command=source_level_file, style="Dark.TButton").grid(row=2, column=0, padx=10, pady=10, sticky="ew")
-    ttk.Button(window, text='Select Target Level File', command=target_level_file, style="Dark.TButton").grid(row=2, column=1, padx=10, pady=10, sticky="ew")
-    source_level_path_label = ttk.Label(window, text="Please select a file:", font=font_style, style="TLabel", wraplength=600)
+    ttk.Button(window, text=t('Select Source Level File'), command=source_level_file, style="Dark.TButton").grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+    ttk.Button(window, text=t('Select Target Level File'), command=target_level_file, style="Dark.TButton").grid(row=2, column=1, padx=10, pady=10, sticky="ew")
+    source_level_path_label = ttk.Label(window, text=t("Please select a file:"), font=font_style, style="TLabel", wraplength=600)
     source_level_path_label.grid(row=3, column=0, padx=10, sticky="ew")
-    target_level_path_label = ttk.Label(window, text="Please select a file:", font=font_style, style="TLabel", wraplength=600)
+    target_level_path_label = ttk.Label(window, text=t("Please select a file:"), font=font_style, style="TLabel", wraplength=600)
     target_level_path_label.grid(row=3, column=1, padx=10, sticky="ew")
     source_player_list = ttk.Treeview(window, columns=(0, 1, 2), show='headings', style="Treeview")
     source_player_list.grid(row=1, column=0, padx=10, pady=10, sticky='nw')
@@ -805,9 +810,9 @@ def character_transfer():
     source_player_list.tag_configure("even", background="#333333", foreground="white")
     source_player_list.tag_configure("odd", background="#444444", foreground="white")
     source_player_list.tag_configure("selected", background="#555555", foreground="white")
-    source_player_list.heading(0, text='Guild ID', command=lambda: sort_treeview_column(source_player_list, 0, False))
-    source_player_list.heading(1, text='Player UID', command=lambda: sort_treeview_column(source_player_list, 1, False))
-    source_player_list.heading(2, text='Nickname', command=lambda: sort_treeview_column(source_player_list, 2, False))
+    source_player_list.heading(0, text=t('Guild ID'), command=lambda: sort_treeview_column(source_player_list, 0, False))
+    source_player_list.heading(1, text=t('Player UID'), command=lambda: sort_treeview_column(source_player_list, 1, False))
+    source_player_list.heading(2, text=t('Nickname'), command=lambda: sort_treeview_column(source_player_list, 2, False))
     source_player_list.bind('<<TreeviewSelect>>', on_selection_of_source_player)
     target_player_list = ttk.Treeview(window, columns=(0, 1, 2), show='headings', style="Treeview")
     target_player_list.grid(row=1, column=1, padx=10, pady=10, sticky='nw')
@@ -815,17 +820,17 @@ def character_transfer():
     target_player_list.tag_configure("even", background="#333333", foreground="white")
     target_player_list.tag_configure("odd", background="#444444", foreground="white")
     target_player_list.tag_configure("selected", background="#555555", foreground="white")
-    target_player_list.heading(0, text='Guild ID', command=lambda: sort_treeview_column(target_player_list, 0, False))
-    target_player_list.heading(1, text='Player UID', command=lambda: sort_treeview_column(target_player_list, 1, False))
-    target_player_list.heading(2, text='Nickname', command=lambda: sort_treeview_column(target_player_list, 2, False))
+    target_player_list.heading(0, text=t('Guild ID'), command=lambda: sort_treeview_column(target_player_list, 0, False))
+    target_player_list.heading(1, text=t('Player UID'), command=lambda: sort_treeview_column(target_player_list, 1, False))
+    target_player_list.heading(2, text=t('Nickname'), command=lambda: sort_treeview_column(target_player_list, 2, False))
     target_player_list.bind('<<TreeviewSelect>>', on_selection_of_target_player)
-    current_selection_label = ttk.Label(window, text="Source: N/A, Target: N/A", font=font_style, style="TLabel", anchor="w", wraplength=600)
+    current_selection_label = ttk.Label(window, text=t("Source: N/A, Target: N/A"), font=font_style, style="TLabel", anchor="w", wraplength=600)
     current_selection_label.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
     window.grid_columnconfigure(0, weight=1)
     window.grid_columnconfigure(1, weight=1)
-    ttk.Button(window, text='Transfer All', command=transfer_all_characters, style="Dark.TButton").grid(row=6, column=0, padx=10, pady=(0,10), sticky="ew")
-    ttk.Button(window, text='Transfer', command=lambda: main(skip_msgbox=False), style="Dark.TButton").grid(row=5, column=1, padx=10, pady=(10, 0), sticky="ew")
-    ttk.Button(window, text='Save Changes', command=lambda: finalize_save(window), style="Dark.TButton").grid(row=6, column=1, padx=10, pady=(0, 10), sticky="ew")
+    ttk.Button(window, text=t('Transfer All'), command=transfer_all_characters, style="Dark.TButton").grid(row=6, column=0, padx=10, pady=(0,10), sticky="ew")
+    ttk.Button(window, text=t('Transfer'), command=lambda: main(skip_msgbox=False), style="Dark.TButton").grid(row=5, column=1, padx=10, pady=(10, 0), sticky="ew")
+    ttk.Button(window, text=t('Save Changes'), command=lambda: finalize_save(window), style="Dark.TButton").grid(row=6, column=1, padx=10, pady=(0, 10), sticky="ew")
     center_window(window)
     def on_exit(): window.destroy()
     window.protocol("WM_DELETE_WINDOW", on_exit)
