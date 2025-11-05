@@ -1,1 +1,0 @@
-export const env={"PUBLIC_WS_URL":"127.0.0.1:5174/ws","PUBLIC_DESKTOP_MODE":"true"}

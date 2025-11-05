@@ -1,9 +1,0 @@
-2025-11-04 15:12:01 [INFO] Logs written to D:\WL\cu\PalworldSaveTools\ppe_windows\logs
-2025-11-04 15:12:01 [INFO] Config file written to D:\WL\cu\PalworldSaveTools\ppe_windows\config.json
-2025-11-04 15:12:01 [INFO] i18n: en, mode: gui, port: 58080, path: None, password: None, JWT_SECRET_KEY: X2Nvbm5sb3N0, shownDonateInfo: {}
-2025-11-04 15:12:01 [INFO] Running Palworld-Pal-Editor version: 0.13.3-RELEASE-20b635d
-2025-11-04 15:12:01 [INFO] Palworld Pal Editor, made by _connlost with ❤.
-2025-11-04 15:12:01 [INFO] Waiting for backend response...
-2025-11-04 15:12:01 [INFO] LISTENING ON 127.0.0.1:58080.
-2025-11-04 15:12:02 [INFO] Backend ready, launching GUI...
-2025-11-04 15:12:02 [INFO] If GUI doesn't work for you, check out this post: https://github.com/KrisCris/Palworld-Pal-Editor/issues/4
