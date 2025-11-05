@@ -184,6 +184,14 @@
   "xgp.title.converter": "Palworld 存档转换器",
   "xgp.ui.btn_xgp_folder": "GamePass 存档文件夹",
   "xgp.ui.btn_steam_folder": "Steam 存档文件夹"
+  ,
+  "deletion.stats.before": "删除前",
+  "deletion.stats.after": "删除后",
+  "deletion.stats.result": "删除结果",
+  "deletion.stats.guilds": "公会",
+  "deletion.stats.bases": "基地",
+  "deletion.stats.players": "玩家",
+  "deletion.stats.pals": "帕鲁"
 }
 
 

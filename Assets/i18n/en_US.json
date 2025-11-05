@@ -180,6 +180,14 @@
   "deletion.menu.generate_map": "Generate Map",
   "deletion.menu.exclusions": "Exclusions",
   "deletion.menu.save_exclusions": "Save Exclusions"
+  ,
+  "deletion.stats.before": "Before Deletion",
+  "deletion.stats.after": "After Deletion",
+  "deletion.stats.result": "Deletion Result",
+  "deletion.stats.guilds": "Guilds",
+  "deletion.stats.bases": "Bases",
+  "deletion.stats.players": "Players",
+  "deletion.stats.pals": "Pals"
 }
 
 

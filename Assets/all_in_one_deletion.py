@@ -2014,15 +2014,25 @@ def create_stats_panel(parent, style):
     style.configure("Stat.TFrame", background="#444444")
     style.configure("Stat.TLabel", background="#444444", foreground="white", font=("Arial", 10))
     stat_frame = ttk.Frame(parent, style="Stat.TFrame", borderwidth=2, relief="solid")
-    sections = ["Before Deletion", "After Deletion", "Deletion Result"]
-    fields = ["Guilds", "Bases", "Players", "Pals"]
+    # Keep English keys for internal logic; display localized labels
+    sections = [
+        ("Before Deletion", "deletion.stats.before"),
+        ("After Deletion", "deletion.stats.after"),
+        ("Deletion Result", "deletion.stats.result"),
+    ]
+    fields = [
+        ("Guilds", "deletion.stats.guilds"),
+        ("Bases", "deletion.stats.bases"),
+        ("Players", "deletion.stats.players"),
+        ("Pals", "deletion.stats.pals"),
+    ]
     stat_labels = {}
-    for col, sec in enumerate(sections):
-        ttk.Label(stat_frame, text=sec, style="Stat.TLabel", font=("Arial", 10, "bold")).grid(row=0, column=col, padx=20, pady=5)
-        key_sec = sec.lower().replace(" ", "")
-        for row, field in enumerate(fields, start=1):
-            key = f"{key_sec}_{field.lower()}"
-            lbl = ttk.Label(stat_frame, text=f"{field}: 0", style="Stat.TLabel")
+    for col, (sec_key, sec_label_key) in enumerate(sections):
+        ttk.Label(stat_frame, text=t(sec_label_key), style="Stat.TLabel", font=("Arial", 10, "bold")).grid(row=0, column=col, padx=20, pady=5)
+        key_sec = sec_key.lower().replace(" ", "")
+        for row, (field_key, field_label_key) in enumerate(fields, start=1):
+            key = f"{key_sec}_{field_key.lower()}"
+            lbl = ttk.Label(stat_frame, text=f"{t(field_label_key)}: 0", style="Stat.TLabel")
             lbl.grid(row=row, column=col, sticky="w", padx=20)
             stat_labels[key] = lbl
     stat_frame.lift()
