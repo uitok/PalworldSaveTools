@@ -1,4 +1,9 @@
 from import_libs import *
+try:
+    from i18n import t
+except Exception:
+    def t(key, **fmt):
+        return key.format(**fmt) if fmt else key
 current_save_path = None
 loaded_level_json = None
 original_loaded_level_json = None
@@ -2189,7 +2194,7 @@ def all_in_one_deletion():
     global guild_result, base_result, player_result
     base_dir = os.path.dirname(os.path.abspath(__file__))
     window = tk.Toplevel()
-    window.title("All in One Deletion Tool")
+    window.title(t("deletion.title"))
     window.geometry("1200x660")
     window.config(bg="#2f2f2f")
     font = ("Arial", 10)
@@ -2205,31 +2210,31 @@ def all_in_one_deletion():
     try: window.iconbitmap(ICON_PATH)
     except: pass
     guild_search_var = tk.StringVar()
-    gframe, guild_tree, guild_search_entry = create_search_panel(window, "Search Guilds:", guild_search_var, on_guild_search,
-        ("Name", "ID"), ("Guild Name", "Guild ID"), (130, 130), 310, 410, tree_height=18)
+    gframe, guild_tree, guild_search_entry = create_search_panel(window, t("deletion.search_guilds"), guild_search_var, on_guild_search,
+        ("Name", "ID"), (t("deletion.col.guild_name"), t("deletion.col.guild_id")), (130, 130), 310, 410, tree_height=18)
     gframe.place(x=10, y=40)
     guild_tree.bind("<<TreeviewSelect>>", on_guild_select)
     base_search_var = tk.StringVar()
-    bframe, base_tree, base_search_entry = create_search_panel(window, "Search Bases:", base_search_var, on_base_search,
-        ("ID",), ("Base ID",), (280,), 310, 200, tree_height=8)
+    bframe, base_tree, base_search_entry = create_search_panel(window, t("deletion.search_bases"), base_search_var, on_base_search,
+        ("ID",), (t("deletion.col.base_id"),), (280,), 310, 200, tree_height=8)
     bframe.place(x=330, y=40)
     base_tree.bind("<<TreeviewSelect>>", on_base_select)
     guild_members_search_var = tk.StringVar()
-    gm_frame, guild_members_tree, guild_members_search_entry = create_search_panel(window, "Guild Members:", guild_members_search_var,
-        on_guild_members_search, ("Name", "Level", "UID"), ("Member", "Level", "UID"), (100, 50, 140), 310, 200, tree_height=8)
+    gm_frame, guild_members_tree, guild_members_search_entry = create_search_panel(window, t("deletion.guild_members"), guild_members_search_var,
+        on_guild_members_search, ("Name", "Level", "UID"), (t("deletion.col.member"), t("deletion.col.level"), "UID"), (100, 50, 140), 310, 200, tree_height=8)
     gm_frame.place(x=330, y=250)
     guild_members_tree.bind("<<TreeviewSelect>>", on_guild_member_select)
     player_search_var = tk.StringVar()
-    pframe, player_tree, player_search_entry = create_search_panel(window, "Search Players:", player_search_var, on_player_search,
-        ("UID", "Name", "GID", "Last", "Level"), ("Player UID", "Player Name", "Guild ID", "Last Seen", "Level"),
+    pframe, player_tree, player_search_entry = create_search_panel(window, t("deletion.search_players"), player_search_var, on_player_search,
+        ("UID", "Name", "GID", "Last", "Level"), ("UID", t("deletion.col.player_name"), t("deletion.col.guild_id"), t("deletion.col.last_seen"), t("deletion.col.level")),
         (100, 120, 120, 90, 50), 540, 410, tree_height=18)
     pframe.place(x=650, y=40)
     player_tree.bind("<<TreeviewSelect>>", on_player_select)
-    guild_result = tk.Label(window, text="Selected Guild: N/A", bg="#2f2f2f", fg="white", font=font)
+    guild_result = tk.Label(window, text=t("deletion.selected_guild", name="N/A"), bg="#2f2f2f", fg="white", font=font)
     guild_result.place(x=10, y=10)
-    base_result = tk.Label(window, text="Selected Base: N/A", bg="#2f2f2f", fg="white", font=font)
+    base_result = tk.Label(window, text=t("deletion.selected_base", id="N/A"), bg="#2f2f2f", fg="white", font=font)
     base_result.place(x=330, y=10)
-    player_result = tk.Label(window, text="Selected Player: N/A", bg="#2f2f2f", fg="white", font=font)
+    player_result = tk.Label(window, text=t("deletion.selected_player", name="N/A"), bg="#2f2f2f", fg="white", font=font)
     player_result.place(x=650, y=10)
     stat_frame, stat_labels = create_stats_panel(window, s)
     stat_frame.place(x=655, y=470, width=530, height=158)
@@ -2239,19 +2244,19 @@ def all_in_one_deletion():
     guild_ex_frame = ttk.Frame(exclusions_container)
     guild_ex_frame.pack(side='left', fill='y', expand=False)
     exclusions_guilds_tree = ttk.Treeview(guild_ex_frame, columns=("ID",), show="headings", height=5)
-    exclusions_guilds_tree.heading("ID", text="Excluded Guild ID")
+    exclusions_guilds_tree.heading("ID", text=t("deletion.excluded_guild_id"))
     exclusions_guilds_tree.column("ID", width=207)
     exclusions_guilds_tree.pack()
     player_ex_frame = ttk.Frame(exclusions_container)
     player_ex_frame.pack(side='left', fill='y', expand=False)
     exclusions_players_tree = ttk.Treeview(player_ex_frame, columns=("ID",), show="headings", height=5)
-    exclusions_players_tree.heading("ID", text="Excluded Player UID")
+    exclusions_players_tree.heading("ID", text=t("deletion.excluded_player_uid"))
     exclusions_players_tree.column("ID", width=206)
     exclusions_players_tree.pack()
     base_ex_frame = ttk.Frame(exclusions_container)
     base_ex_frame.pack(side='left', fill='y', expand=False)
     exclusions_bases_tree = ttk.Treeview(base_ex_frame, columns=("ID",), show="headings", height=5)
-    exclusions_bases_tree.heading("ID", text="Excluded Bases")
+    exclusions_bases_tree.heading("ID", text=t("deletion.excluded_bases"))
     exclusions_bases_tree.column("ID", width=206)
     exclusions_bases_tree.pack()
     def populate_exclusions_trees():
@@ -2267,7 +2272,7 @@ def all_in_one_deletion():
     def add_exclusion(source_tree, key):
         sel = source_tree.selection()
         if not sel:
-            tk.messagebox.showwarning("Warning", f"No {key[:-1].capitalize()} selected!")
+            tk.messagebox.showwarning(t("Warning"), t("deletion.warn.none_selected", kind=key[:-1].capitalize()))
             return
         val = source_tree.item(sel[0])["values"]
         if source_tree == guild_tree:
@@ -2282,7 +2287,7 @@ def all_in_one_deletion():
             exclusions[key].append(val)
             populate_exclusions_trees()
         else:
-            tk.messagebox.showinfo("Info", f"{key[:-1].capitalize()} already in exclusions.")
+            tk.messagebox.showinfo(t("Info"), t("deletion.info.already_in_exclusions", kind=key[:-1].capitalize()))
     def remove_selected_exclusion(tree, key):
         sel = tree.selection()
         if not sel: return
@@ -2309,7 +2314,7 @@ def all_in_one_deletion():
         populate_exclusions_trees()
     def save_exclusions_func():
         with open("deletion_exclusions.json", "w") as f: json.dump(exclusions, f, indent=4)
-        tk.messagebox.showinfo("Saved", "Exclusions saved!")
+        tk.messagebox.showinfo(t("Saved"), t("deletion.saved_exclusions"))
     populate_exclusions_trees()
     def on_exit(): window.destroy()
     window.protocol("WM_DELETE_WINDOW", on_exit)
@@ -2318,27 +2323,27 @@ def all_in_one_deletion():
         if iid:
             guild_tree.selection_set(iid)
             menu = tk.Menu(window, tearoff=0)
-            menu.add_command(label="Add to Exclusions", command=lambda: add_exclusion(guild_tree, "guilds"))
-            menu.add_command(label="Remove from Exclusions", command=lambda: remove_selected_from_regular(guild_tree, "guilds"))
-            menu.add_command(label="Delete Guild", command=delete_selected_guild)
+            menu.add_command(label=t("deletion.ctx.add_exclusion"), command=lambda: add_exclusion(guild_tree, "guilds"))
+            menu.add_command(label=t("deletion.ctx.remove_exclusion"), command=lambda: remove_selected_from_regular(guild_tree, "guilds"))
+            menu.add_command(label=t("deletion.ctx.delete_guild"), command=delete_selected_guild)
             menu.tk_popup(event.x_root, event.y_root)
     def base_tree_menu(event):
         iid = base_tree.identify_row(event.y)
         if iid:
             base_tree.selection_set(iid)
             menu = tk.Menu(window, tearoff=0)
-            menu.add_command(label="Add to Exclusions", command=lambda: add_exclusion(base_tree, "bases"))
-            menu.add_command(label="Remove from Exclusions", command=lambda: remove_selected_from_regular(base_tree, "bases"))
-            menu.add_command(label="Delete Base", command=delete_selected_base)
+            menu.add_command(label=t("deletion.ctx.add_exclusion"), command=lambda: add_exclusion(base_tree, "bases"))
+            menu.add_command(label=t("deletion.ctx.remove_exclusion"), command=lambda: remove_selected_from_regular(base_tree, "bases"))
+            menu.add_command(label=t("deletion.ctx.delete_base"), command=delete_selected_base)
             menu.tk_popup(event.x_root, event.y_root)
     def player_tree_menu(event):
         iid = player_tree.identify_row(event.y)
         if iid:
             player_tree.selection_set(iid)
             menu = tk.Menu(window, tearoff=0)
-            menu.add_command(label="Add to Exclusions", command=lambda: add_exclusion(player_tree, "players"))
-            menu.add_command(label="Remove from Exclusions", command=lambda: remove_selected_from_regular(player_tree, "players"))
-            menu.add_command(label="Delete Player", command=delete_selected_player)
+            menu.add_command(label=t("deletion.ctx.add_exclusion"), command=lambda: add_exclusion(player_tree, "players"))
+            menu.add_command(label=t("deletion.ctx.remove_exclusion"), command=lambda: remove_selected_from_regular(player_tree, "players"))
+            menu.add_command(label=t("deletion.ctx.delete_player"), command=delete_selected_player)
             menu.tk_popup(event.x_root, event.y_root)
     def guild_members_tree_menu(event):
         iid = guild_members_tree.identify_row(event.y)
@@ -2354,21 +2359,21 @@ def all_in_one_deletion():
         if iid:
             exclusions_guilds_tree.selection_set(iid)
             menu = tk.Menu(window, tearoff=0)
-            menu.add_command(label="Remove from Exclusions", command=lambda: remove_selected_exclusion(exclusions_guilds_tree, "guilds"))
+            menu.add_command(label=t("deletion.ctx.remove_exclusion"), command=lambda: remove_selected_exclusion(exclusions_guilds_tree, "guilds"))
             menu.tk_popup(event.x_root, event.y_root)
     def exclusions_players_tree_menu(event):
         iid = exclusions_players_tree.identify_row(event.y)
         if iid:
             exclusions_players_tree.selection_set(iid)
             menu = tk.Menu(window, tearoff=0)
-            menu.add_command(label="Remove from Exclusions", command=lambda: remove_selected_exclusion(exclusions_players_tree, "players"))
+            menu.add_command(label=t("deletion.ctx.remove_exclusion"), command=lambda: remove_selected_exclusion(exclusions_players_tree, "players"))
             menu.tk_popup(event.x_root, event.y_root)
     def exclusions_bases_tree_menu(event):
         iid = exclusions_bases_tree.identify_row(event.y)
         if iid:
             exclusions_bases_tree.selection_set(iid)
             menu = tk.Menu(window, tearoff=0)
-            menu.add_command(label="Remove from Exclusions", command=lambda: remove_selected_exclusion(exclusions_bases_tree, "bases"))
+            menu.add_command(label=t("deletion.ctx.remove_exclusion"), command=lambda: remove_selected_exclusion(exclusions_bases_tree, "bases"))
             menu.tk_popup(event.x_root, event.y_root)
     guild_tree.bind("<Button-3>", guild_tree_menu)
     base_tree.bind("<Button-3>", base_tree_menu)
@@ -2379,34 +2384,34 @@ def all_in_one_deletion():
     exclusions_bases_tree.bind("<Button-3>", exclusions_bases_tree_menu)
     menubar = tk.Menu(window)
     file_menu = tk.Menu(menubar, tearoff=0)
-    file_menu.add_command(label="Load Level.sav", command=load_save)
-    file_menu.add_command(label="Save Changes", command=save_changes)
-    menubar.add_cascade(label="File", menu=file_menu)
+    file_menu.add_command(label=t("deletion.menu.load_level"), command=load_save)
+    file_menu.add_command(label=t("deletion.menu.save_changes"), command=save_changes)
+    menubar.add_cascade(label=t("deletion.menu.file"), menu=file_menu)
     delete_menu = tk.Menu(menubar, tearoff=0)
-    delete_menu.add_command(label="Delete Selected Guild", command=delete_selected_guild)
-    delete_menu.add_command(label="Delete Empty Guilds", command=delete_empty_guilds)
+    delete_menu.add_command(label=t("deletion.menu.delete_selected_guild"), command=delete_selected_guild)
+    delete_menu.add_command(label=t("deletion.menu.delete_empty_guilds"), command=delete_empty_guilds)
     delete_menu.add_separator()
-    delete_menu.add_command(label="Delete Selected Base", command=delete_selected_base)
-    delete_menu.add_command(label="Delete Inactive Bases", command=delete_inactive_bases)
+    delete_menu.add_command(label=t("deletion.menu.delete_selected_base"), command=delete_selected_base)
+    delete_menu.add_command(label=t("deletion.menu.delete_inactive_bases"), command=delete_inactive_bases)
     delete_menu.add_separator()
-    delete_menu.add_command(label="Delete Selected Player", command=delete_selected_player)
-    delete_menu.add_command(label="Delete Duplicate Players", command=delete_duplicated_players)
-    delete_menu.add_command(label="Delete Inactive Players", command=delete_inactive_players_button)
+    delete_menu.add_command(label=t("deletion.menu.delete_selected_player"), command=delete_selected_player)
+    delete_menu.add_command(label=t("deletion.menu.delete_duplicate_players"), command=delete_duplicated_players)
+    delete_menu.add_command(label=t("deletion.menu.delete_inactive_players"), command=delete_inactive_players_button)
     delete_menu.add_separator()
-    delete_menu.add_command(label="Delete Unreferenced Data", command=delete_unreferenced_data)
+    delete_menu.add_command(label=t("deletion.menu.delete_unreferenced"), command=delete_unreferenced_data)
     delete_menu.add_separator()
-    delete_menu.add_command(label="Generate PalDefender killnearestbase commands", command=open_kill_nearest_base_ui)
-    delete_menu.add_command(label="Reset Anti-Air Turrets", command=reset_anti_air_turrets)
-    delete_menu.add_command(label="Unlock All Private Chests", command=unlock_all_private_chests)
-    delete_menu.add_command(label="Remove All Invalid Items", command=remove_invalid_items_from_save)
-    menubar.add_cascade(label="Delete", menu=delete_menu)
+    delete_menu.add_command(label=t("deletion.menu.generate_killnearestbase"), command=open_kill_nearest_base_ui)
+    delete_menu.add_command(label=t("deletion.menu.reset_anti_air"), command=reset_anti_air_turrets)
+    delete_menu.add_command(label=t("deletion.menu.unlock_private_chests"), command=unlock_all_private_chests)
+    delete_menu.add_command(label=t("deletion.menu.remove_invalid_items"), command=remove_invalid_items_from_save)
+    menubar.add_cascade(label=t("deletion.menu.delete"), menu=delete_menu)
     view_menu = tk.Menu(menubar, tearoff=0)
-    view_menu.add_command(label="Show Base Map", command=show_base_map)
-    view_menu.add_command(label="Generate Map", command=generate_map)
-    menubar.add_cascade(label="View", menu=view_menu)
+    view_menu.add_command(label=t("deletion.menu.show_map"), command=show_base_map)
+    view_menu.add_command(label=t("deletion.menu.generate_map"), command=generate_map)
+    menubar.add_cascade(label=t("deletion.menu.view"), menu=view_menu)
     exclusions_menu = tk.Menu(menubar, tearoff=0)
-    exclusions_menu.add_command(label="Save Exclusions", command=save_exclusions_func)
-    menubar.add_cascade(label="Exclusions", menu=exclusions_menu)
+    exclusions_menu.add_command(label=t("deletion.menu.save_exclusions"), command=save_exclusions_func)
+    menubar.add_cascade(label=t("deletion.menu.exclusions"), menu=exclusions_menu)
     window.config(menu=menubar)
     def on_f5_press(event):
         folder = current_save_path
@@ -2415,9 +2420,9 @@ def all_in_one_deletion():
         guild_tree.selection_remove(guild_tree.selection())
         player_tree.selection_remove(player_tree.selection())
         base_tree.selection_remove(base_tree.selection())
-        guild_result.config(text="Selected Guild: N/A")
-        base_result.config(text="Selected Base: N/A")
-        player_result.config(text="Selected Player: N/A")
+        guild_result.config(text=t("deletion.selected_guild", name="N/A"))
+        base_result.config(text=t("deletion.selected_base", id="N/A"))
+        player_result.config(text=t("deletion.selected_player", name="N/A"))
     window.bind("<F5>", on_f5_press)
     center_window(window)
     def on_exit(): window.destroy()
